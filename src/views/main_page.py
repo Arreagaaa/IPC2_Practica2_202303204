@@ -1,11 +1,9 @@
-import tkinter.simpledialog
 import tkinter as tk
-from tkinter import ttk, messagebox, scrolledtext
+from tkinter import ttk, messagebox
 from controllers.turnos import ControladorTurnos
 from utils.graphviz_generator import GraphvizGenerator
-import threading
-import time
 import os
+import datetime
 
 try:
     from PIL import Image, ImageTk
@@ -70,7 +68,7 @@ class ModernMedicalApp:
                              focuscolor='none')
 
         self.style.map('Primary.TButton',
-                       background=[('active', colors['secondary'])])
+                       background=[('active', '#1a4480')])  # Azul más oscuro
 
         self.style.configure('Success.TButton',
                              background=colors['success'],
@@ -78,17 +76,27 @@ class ModernMedicalApp:
                              font=('Segoe UI', 9, 'bold'),
                              padding=(15, 8))
 
+        self.style.map('Success.TButton',
+                       background=[('active', '#1e8449')])  # Verde más oscuro
+
         self.style.configure('Warning.TButton',
                              background=colors['warning'],
                              foreground='white',
                              font=('Segoe UI', 9, 'bold'),
                              padding=(15, 8))
 
+        self.style.map('Warning.TButton',
+                       # Amarillo más oscuro
+                       background=[('active', '#d68910')])
+
         self.style.configure('Danger.TButton',
                              background=colors['danger'],
                              foreground='white',
                              font=('Segoe UI', 9, 'bold'),
                              padding=(15, 8))
+
+        self.style.map('Danger.TButton',
+                       background=[('active', '#c0392b')])  # Rojo más oscuro
 
         self.style.configure('Header.TLabel',
                              font=('Segoe UI', 16, 'bold'),
@@ -109,6 +117,52 @@ class ModernMedicalApp:
                              font=('Segoe UI', 12, 'bold'),
                              background='white',
                              foreground=colors['primary'])
+
+    def create_specialty_legend(self, parent_frame):
+        title_label = tk.Label(parent_frame,
+                               text="Colores por Especialidad:",
+                               font=('Segoe UI', 11, 'bold'),
+                               bg="white")
+        title_label.pack(pady=(0, 10))
+
+        especialidades_colores = {
+            'Medicina General': '#90EE90',      # lightgreen
+            'Pediatría': '#F08080',             # lightcoral
+            'Ginecología': '#FFB6C1',           # lightpink
+            'Dermatología': '#FFFFE0'           # lightyellow
+        }
+
+        # Crear un frame para cada especialidad
+        for especialidad, color in especialidades_colores.items():
+            esp_frame = tk.Frame(parent_frame, bg="white")
+            esp_frame.pack(fill="x", pady=2)
+
+            # Cuadrito de color
+            color_box = tk.Label(esp_frame,
+                                 text="  ",
+                                 bg=color,
+                                 relief="solid",
+                                 borderwidth=1,
+                                 width=3)
+            color_box.pack(side="left", padx=(10, 5))
+
+            # Nombre de la especialidad
+            esp_label = tk.Label(esp_frame,
+                                 text=especialidad,
+                                 font=('Segoe UI', 10),
+                                 bg="white")
+            esp_label.pack(side="left")
+
+        # Información adicional
+        info_frame = tk.Frame(parent_frame, bg="white")
+        info_frame.pack(fill="x", pady=(15, 0))
+
+        info_label = tk.Label(info_frame,
+                              text="💡 Los colores se reflejan en la visualización Graphviz",
+                              font=('Segoe UI', 9, 'italic'),
+                              bg="white",
+                              fg="#666666")
+        info_label.pack()
 
     def create_widgets(self):
         self.main_frame = tk.Frame(self.root, bg="#f0f4f8")
@@ -132,25 +186,7 @@ class ModernMedicalApp:
                                font=('Segoe UI', 20, 'bold'),
                                bg="#2c5aa0",
                                fg="white")
-        title_label.pack(side="left", padx=20, pady=20)
-
-        self.status_frame = tk.Frame(header_frame, bg="#2c5aa0")
-        self.status_frame.pack(side="right", padx=20, pady=15)
-
-        self.status_label = tk.Label(self.status_frame,
-                                     text="🟢 Sistema Activo",
-                                     font=('Segoe UI', 12),
-                                     bg="#2c5aa0",
-                                     fg="white")
-        self.status_label.pack()
-
-        self.time_label = tk.Label(self.status_frame,
-                                   text="",
-                                   font=('Segoe UI', 10),
-                                   bg="#2c5aa0",
-                                   fg="white")
-        self.time_label.pack()
-        self.update_time()
+        title_label.pack(expand=True, pady=20)
 
     def create_left_panel(self):
         left_frame = tk.Frame(self.main_frame, bg="#f0f4f8", width=400)
@@ -219,20 +255,16 @@ class ModernMedicalApp:
                                  command=self.limpiar_cola)
         btn_limpiar.pack(fill="x", pady=5)
 
-        estado_frame = ttk.LabelFrame(left_frame,
-                                      text="📊 Estado Actual",
-                                      style="Modern.TLabelframe",
-                                      padding=15)
-        estado_frame.pack(fill="both", expand=True)
+        leyenda_frame = ttk.LabelFrame(left_frame,
+                                       text="🎨 Leyenda de Especialidades",
+                                       style="Modern.TLabelframe",
+                                       padding=15)
+        leyenda_frame.pack(fill="both", expand=True)
 
-        self.info_text = scrolledtext.ScrolledText(estado_frame,
-                                                   height=8,
-                                                   font=('Consolas', 9),
-                                                   wrap="word",
-                                                   state="disabled")
-        self.info_text.pack(fill="both", expand=True)
+        # Crear leyenda de colores
+        self.create_specialty_legend(leyenda_frame)
 
-        self.auto_refresh_check = ttk.Checkbutton(estado_frame,
+        self.auto_refresh_check = ttk.Checkbutton(leyenda_frame,
                                                   text="🔄 Actualización automática",
                                                   variable=self.auto_refresh)
         self.auto_refresh_check.pack(pady=(10, 0))
@@ -412,48 +444,8 @@ class ModernMedicalApp:
             "✅ Actualizado", "Visualización actualizada correctamente")
 
     def update_display(self):
-        self.update_queue_info()
         self.update_queue_visualization()
         self.update_system_status()
-
-    def update_queue_info(self):
-        estado = self.controlador.obtener_estado_cola()
-        pacientes = self.controlador.obtener_lista_pacientes()
-
-        self.info_text.config(state="normal")
-        self.info_text.delete(1.0, tk.END)
-
-        info = f"🏥 ESTADO DE LA COLA\n"
-        info += f"{'='*40}\n\n"
-        info += f"📊 Total de pacientes en espera: {estado['total_pacientes']}\n"
-        info += f"⏱️  Tiempo total estimado: {estado['tiempo_total_estimado']} minutos\n"
-        info += f"👥 Pacientes atendidos hoy: {estado['pacientes_atendidos_hoy']}\n\n"
-
-        if estado['esta_vacia']:
-            info += "📋 La cola está vacía\n"
-            info += "✨ No hay pacientes esperando\n"
-        else:
-            info += f"🔄 PRÓXIMO PACIENTE:\n"
-            siguiente = estado['siguiente_paciente']
-            if siguiente:
-                info += f"   👤 {siguiente.nombre}\n"
-                info += f"   🎂 {siguiente.edad} años\n"
-                info += f"   ⚕️  {siguiente.especialidad}\n"
-                info += f"   ⏲️  {siguiente.tiempo_atencion} min\n\n"
-
-            info += f"📝 LISTA COMPLETA ({len(pacientes)} pacientes):\n"
-            info += f"{'-'*40}\n"
-
-            for i, paciente in enumerate(pacientes, 1):
-                info += f"{i:2d}. {paciente.nombre} ({paciente.edad}a)\n"
-                info += f"     {paciente.especialidad}\n"
-                info += f"     Espera: {paciente.tiempo_espera_estimado} min"
-                info += f" | Atención: {paciente.tiempo_atencion} min\n\n"
-
-        self.info_text.insert(1.0, info)
-        self.info_text.config(state="disabled")
-
-        self.info_text.see(1.0)
 
     def update_queue_visualization(self):
         if not self.graphviz.is_available():
@@ -487,7 +479,6 @@ class ModernMedicalApp:
                 text=f"❌ Error en visualización:\n{mensaje}")
 
     def update_system_status(self):
-        import datetime
         now = datetime.datetime.now()
         timestamp = now.strftime("%H:%M:%S")
 
@@ -497,14 +488,6 @@ class ModernMedicalApp:
         status_text += f"Tiempo estimado: {estado['tiempo_total_estimado']} min"
 
         self.system_info.config(text=status_text)
-
-    def update_time(self):
-        import datetime
-        now = datetime.datetime.now()
-        time_str = now.strftime("%d/%m/%Y - %H:%M:%S")
-        self.time_label.config(text=time_str)
-
-        self.root.after(1000, self.update_time)
 
     def auto_update_loop(self):
         if self.auto_refresh.get():

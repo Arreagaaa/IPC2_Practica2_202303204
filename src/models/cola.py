@@ -1,5 +1,6 @@
 from models.nodo import Nodo
 
+
 class ColaPacientes:
     def __init__(self):
         self.primero = None  # Frente de la cola (próximo a atender)
@@ -12,11 +13,11 @@ class ColaPacientes:
         nuevo_nodo = Nodo(paciente)
 
         if self.esta_vacia():
-            self.primero = nuevo_nodo
+            self.primero = nuevo_nodo  # Primer paciente en la cola
             self.ultimo = nuevo_nodo
         else:
-            self.ultimo.establecer_siguiente(nuevo_nodo)
-            self.ultimo = nuevo_nodo
+            self.ultimo.establecer_siguiente(nuevo_nodo)  # Conecto al final
+            self.ultimo = nuevo_nodo  # Actualizo el último nodo
 
         self._actualizar_tiempos_espera()
 
@@ -24,8 +25,8 @@ class ColaPacientes:
         if self.esta_vacia():
             return None
 
-        paciente_atendido = self.primero.obtener_info()
-        self.primero = self.primero.obtener_siguiente()
+        paciente_atendido = self.primero.obtener_info()  # Guardar el paciente a atender
+        self.primero = self.primero.obtener_siguiente()  # Mover el frente de la cola
 
         if self.primero is None:
             self.ultimo = None

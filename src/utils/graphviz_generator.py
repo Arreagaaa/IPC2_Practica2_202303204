@@ -67,19 +67,6 @@ class GraphvizGenerator:
                     else:
                         dot.edge(f'patient_{i-1}', node_id, style='dashed')
 
-                with dot.subgraph(name='cluster_legend') as legend:
-                    legend.attr(label='Leyenda de Especialidades',
-                                fontsize='10')
-                    legend.attr(style='dotted')
-                    legend.node('leg_mg', 'Medicina General',
-                                fillcolor='lightgreen', fontsize='8')
-                    legend.node('leg_ped', 'Pediatría',
-                                fillcolor='lightcoral', fontsize='8')
-                    legend.node('leg_gin', 'Ginecología',
-                                fillcolor='lightpink', fontsize='8')
-                    legend.node('leg_der', 'Dermatología',
-                                fillcolor='lightyellow', fontsize='8')
-
             filepath = os.path.join(self.output_dir, filename)
             dot.render(filepath, format='png', cleanup=True)
             png_filepath = f"{filepath}.png"
@@ -144,35 +131,7 @@ class GraphvizGenerator:
         return representation
 
     def set_output_directory(self, directory):
-
         if os.path.exists(directory) and os.path.isdir(directory):
             self.output_dir = directory
             return True
         return False
-
-
-def generar_grafica_cola(cola: ColaPacientes, nombre_archivo="cola_pacientes"):
-    try:
-        from graphviz import Digraph
-    except ImportError:
-        print("Graphviz no está instalado.")
-        return
-
-    dot = Digraph(comment="Cola de Pacientes")
-
-    actual = cola.primero
-    indice = 0
-
-    while actual is not None:
-        paciente = actual.obtener_info()
-        etiqueta = f"{paciente.nombre}\\n{paciente.especialidad}\\n{paciente.tiempo_espera_estimado} min"
-        dot.node(str(indice), etiqueta)
-
-        if actual.obtener_siguiente() is not None:
-            dot.edge(str(indice), str(indice + 1))
-
-        actual = actual.obtener_siguiente()
-        indice += 1
-
-    dot.render(f"{nombre_archivo}.gv", view=False)
-    print(f"Gráfica generada: {nombre_archivo}.gv.pdf")
