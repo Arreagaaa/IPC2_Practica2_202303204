@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog
 from controllers.turnos import ControladorTurnos
 from utils.graphviz_generator import GraphvizGenerator
 import os
@@ -33,7 +33,7 @@ class ModernMedicalApp:
 
     def setup_window(self):
         self.root.title(
-            "🏥 Sistema de Gestión de Turnos Médicos - Clínica Digital")
+            "Sistema de Gestión de Turnos Médicos - Clínica Digital")
         self.root.geometry("1200x800")
         self.root.configure(bg="#f0f4f8")
         self.root.resizable(True, True)
@@ -158,7 +158,7 @@ class ModernMedicalApp:
         info_frame.pack(fill="x", pady=(15, 0))
 
         info_label = tk.Label(info_frame,
-                              text="💡 Los colores se reflejan en la visualización Graphviz",
+                              text="Los colores se reflejan en la visualización Graphviz",
                               font=('Segoe UI', 9, 'italic'),
                               bg="white",
                               fg="#666666")
@@ -182,7 +182,7 @@ class ModernMedicalApp:
         header_frame.pack_propagate(False)
 
         title_label = tk.Label(header_frame,
-                               text="🏥 Sistema de Gestión de Turnos Médicos",
+                               text="Sistema de Gestión de Turnos Médicos",
                                font=('Segoe UI', 20, 'bold'),
                                bg="#2c5aa0",
                                fg="white")
@@ -194,7 +194,7 @@ class ModernMedicalApp:
         left_frame.pack_propagate(False)
 
         registro_frame = ttk.LabelFrame(left_frame,
-                                        text="📝 Registrar Nuevo Paciente",
+                                        text="Registrar Nuevo Paciente",
                                         style="Modern.TLabelframe",
                                         padding=20)
         registro_frame.pack(fill="x", pady=(0, 20))
@@ -221,42 +221,43 @@ class ModernMedicalApp:
         self.combo_especialidad.grid(row=2, column=1, pady=5, padx=(10, 0))
 
         btn_registrar = ttk.Button(registro_frame,
-                                   text="➕ Registrar Paciente",
+                                   text="Registrar Paciente",
                                    style="Success.TButton",
                                    command=self.registrar_paciente)
         btn_registrar.grid(row=3, columnspan=2, pady=15)
 
         gestion_frame = ttk.LabelFrame(left_frame,
-                                       text="⚕️ Gestión de Turnos",
+                                       text="Gestión de Turnos",
                                        style="Modern.TLabelframe",
                                        padding=20)
         gestion_frame.pack(fill="x", pady=(0, 20))
 
         btn_atender = ttk.Button(gestion_frame,
-                                 text="👨‍⚕️ Atender Próximo Paciente",
+                                 text="Atender Próximo Paciente",
                                  style="Primary.TButton",
                                  command=self.atender_paciente)
         btn_atender.pack(fill="x", pady=5)
 
         btn_siguiente = ttk.Button(gestion_frame,
-                                   text="🔍 Ver Siguiente en Cola",
+                                   text="Ver Siguiente en Cola",
                                    style="Warning.TButton",
                                    command=self.ver_siguiente)
         btn_siguiente.pack(fill="x", pady=5)
 
         btn_buscar = ttk.Button(gestion_frame,
-                                text="🔎 Buscar Paciente",
+                                text="Buscar Paciente",
+                                style="Warning.TButton",
                                 command=self.buscar_paciente)
         btn_buscar.pack(fill="x", pady=5)
 
         btn_limpiar = ttk.Button(gestion_frame,
-                                 text="🧹 Limpiar Cola",
+                                 text="Limpiar Cola",
                                  style="Danger.TButton",
                                  command=self.limpiar_cola)
         btn_limpiar.pack(fill="x", pady=5)
 
         leyenda_frame = ttk.LabelFrame(left_frame,
-                                       text="🎨 Leyenda de Especialidades",
+                                       text="Leyenda de Especialidades",
                                        style="Modern.TLabelframe",
                                        padding=15)
         leyenda_frame.pack(fill="both", expand=True)
@@ -265,7 +266,7 @@ class ModernMedicalApp:
         self.create_specialty_legend(leyenda_frame)
 
         self.auto_refresh_check = ttk.Checkbutton(leyenda_frame,
-                                                  text="🔄 Actualización automática",
+                                                  text="Actualización automática",
                                                   variable=self.auto_refresh)
         self.auto_refresh_check.pack(pady=(10, 0))
 
@@ -274,7 +275,7 @@ class ModernMedicalApp:
         right_frame.pack(side="right", fill="both", expand=True)
 
         viz_frame = ttk.LabelFrame(right_frame,
-                                   text="📈 Visualización de Cola en Tiempo Real",
+                                   text="Visualización de Cola en Tiempo Real",
                                    style="Modern.TLabelframe",
                                    padding=15)
         viz_frame.pack(fill="both", expand=True, pady=(0, 10))
@@ -289,12 +290,12 @@ class ModernMedicalApp:
         self.queue_canvas.pack(expand=True, fill="both")
 
         btn_refresh = ttk.Button(viz_frame,
-                                 text="🔄 Actualizar Visualización",
+                                 text="Actualizar Visualización",
                                  command=self.update_visualization_manual)
         btn_refresh.pack(pady=5)
 
         stats_frame = ttk.LabelFrame(right_frame,
-                                     text="📊 Estadísticas por Especialidad",
+                                     text="Estadísticas por Especialidad",
                                      style="Modern.TLabelframe",
                                      padding=15)
         stats_frame.pack(fill="x", pady=(10, 0))
@@ -311,7 +312,7 @@ class ModernMedicalApp:
         self.stats_canvas.pack(expand=True)
 
         btn_stats = ttk.Button(stats_frame,
-                               text="📈 Generar Estadísticas",
+                               text="Generar Estadísticas",
                                command=self.generar_estadisticas)
         btn_stats.pack(pady=5)
 
@@ -321,14 +322,14 @@ class ModernMedicalApp:
         bottom_frame.pack_propagate(False)
 
         self.system_info = tk.Label(bottom_frame,
-                                    text="🔄 Sistema listo | Última actualización: --",
+                                    text="Sistema listo | Última actualización: --",
                                     font=('Segoe UI', 9),
                                     bg="#ecf0f1",
                                     fg="#2c3e50")
         self.system_info.pack(side="left", padx=20, pady=15)
 
-        graphviz_status = "✅ Graphviz disponible" if self.graphviz.is_available(
-        ) else "❌ Graphviz no disponible"
+        graphviz_status = "Graphviz disponible" if self.graphviz.is_available(
+        ) else "Graphviz no disponible"
         self.graphviz_info = tk.Label(bottom_frame,
                                       text=graphviz_status,
                                       font=('Segoe UI', 9),
@@ -346,40 +347,40 @@ class ModernMedicalApp:
 
         if not nombre:
             messagebox.showerror(
-                "❌ Error", "Por favor ingrese el nombre del paciente")
+                "Error", "Por favor ingrese el nombre del paciente")
             return
 
         try:
             edad = int(edad_str)
         except ValueError:
             messagebox.showerror(
-                "❌ Error", "La edad debe ser un número válido")
+                "Error", "La edad debe ser un número válido")
             return
 
         if not especialidad:
             messagebox.showerror(
-                "❌ Error", "Por favor seleccione una especialidad")
+                "Error", "Por favor seleccione una especialidad")
             return
 
         success, mensaje = self.controlador.registrar_paciente(
             nombre, edad, especialidad)
 
         if success:
-            messagebox.showinfo("✅ Éxito", mensaje)
+            messagebox.showinfo("Éxito", mensaje)
             self.entry_nombre.delete(0, tk.END)
             self.entry_edad.delete(0, tk.END)
             self.combo_especialidad.set("")
             self.update_display()
         else:
-            messagebox.showerror("❌ Error", mensaje)
+            messagebox.showerror("Error", mensaje)
 
     def atender_paciente(self):
         paciente, mensaje = self.controlador.atender_paciente()
 
         if paciente:
-            messagebox.showinfo("✅ Paciente Atendido", mensaje)
+            messagebox.showinfo("Paciente Atendido", mensaje)
         else:
-            messagebox.showwarning("⚠️ Aviso", mensaje)
+            messagebox.showwarning("Aviso", mensaje)
 
         self.update_display()
 
@@ -387,28 +388,28 @@ class ModernMedicalApp:
         paciente, mensaje = self.controlador.ver_siguiente_paciente()
 
         if paciente:
-            messagebox.showinfo("ℹ️ Próximo Paciente", mensaje)
+            messagebox.showinfo("Próximo Paciente", mensaje)
         else:
-            messagebox.showinfo("ℹ️ Información", mensaje)
+            messagebox.showinfo("Información", mensaje)
 
     def buscar_paciente(self):
-        nombre = tk.simpledialog.askstring("🔍 Buscar Paciente",
+        nombre = tk.simpledialog.askstring("Buscar Paciente",
                                            "Ingrese el nombre del paciente:")
 
         if nombre:
             posicion, mensaje = self.controlador.obtener_posicion_paciente(
                 nombre)
             if posicion != -1:
-                messagebox.showinfo("✅ Paciente Encontrado", mensaje)
+                messagebox.showinfo("Paciente Encontrado", mensaje)
             else:
-                messagebox.showwarning("⚠️ No Encontrado", mensaje)
+                messagebox.showwarning("No Encontrado", mensaje)
 
     def limpiar_cola(self):
-        if messagebox.askyesno("⚠️ Confirmación",
+        if messagebox.askyesno("Confirmación",
                                "¿Está seguro de que desea limpiar toda la cola?\n"
                                "Esta acción no se puede deshacer."):
             mensaje = self.controlador.limpiar_turnos()
-            messagebox.showinfo("✅ Cola Limpiada", mensaje)
+            messagebox.showinfo("Cola Limpiada", mensaje)
             self.update_display()
 
     def generar_estadisticas(self):
@@ -441,7 +442,7 @@ class ModernMedicalApp:
     def update_visualization_manual(self):
         self.update_display()
         messagebox.showinfo(
-            "✅ Actualizado", "Visualización actualizada correctamente")
+            "Actualizado", "Visualización actualizada correctamente")
 
     def update_display(self):
         self.update_queue_visualization()
@@ -449,7 +450,7 @@ class ModernMedicalApp:
 
     def update_queue_visualization(self):
         if not self.graphviz.is_available():
-            self.queue_canvas.config(text="❌ Graphviz no disponible\n\n"
+            self.queue_canvas.config(text="Graphviz no disponible\n\n"
                                      "Para visualización gráfica,\n"
                                      "instale Graphviz:\n"
                                      "pip install graphviz")
@@ -469,21 +470,21 @@ class ModernMedicalApp:
                     self.queue_canvas.config(image=self.current_image, text="")
                 except Exception as e:
                     self.queue_canvas.config(
-                        text=f"❌ Error al cargar imagen:\n{str(e)}")
+                        text=f"Error al cargar imagen:\n{str(e)}")
             else:
                 simple_repr = self.graphviz.generate_simple_queue_representation(
                     pacientes)
                 self.queue_canvas.config(text=simple_repr)
         else:
             self.queue_canvas.config(
-                text=f"❌ Error en visualización:\n{mensaje}")
+                text=f"Error en visualización:\n{mensaje}")
 
     def update_system_status(self):
         now = datetime.datetime.now()
         timestamp = now.strftime("%H:%M:%S")
 
         estado = self.controlador.obtener_estado_cola()
-        status_text = f"🔄 Última actualización: {timestamp} | "
+        status_text = f"Última actualización: {timestamp} | "
         status_text += f"Cola: {estado['total_pacientes']} pacientes | "
         status_text += f"Tiempo estimado: {estado['tiempo_total_estimado']} min"
 
